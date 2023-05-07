@@ -103,6 +103,7 @@ def query_message(
             message += next_review
     return message + question
 
+
 def ask(
     query: str,
     df: pd.DataFrame = df,
@@ -118,14 +119,30 @@ def ask(
         {"role": "system", "content": "You answer questions about a banking app features."},
         {"role": "user", "content": message},
     ]
+
     response = openai.ChatCompletion.create(
         model=model,
         messages=messages,
         temperature=0
     )
+
     response_message = response["choices"][0]["message"]["content"]
-    print(response_message)
-    return response_message
+
+    firstPersonMessage = [
+        {"role": "system", "content": "You rephrase text to first person."},
+        {"role": "user", "content": f'\n\nReview:\n"""\n{response_message}\n"""'},
+    ]
+
+    responseAsFirstPerson = openai.ChatCompletion.create(
+        model=model,
+        messages=firstPersonMessage,
+        temperature=0
+    )
+
+    final_response = responseAsFirstPerson["choices"][0]["message"]["content"]
+
+    print(final_response)
+    return final_response
 
 
 ask('What do you think about the design of the app?')
